@@ -26,21 +26,7 @@ import java.util.List;
  */
 public class LaunchReviewPlugin implements MethodCallHandler, FlutterPlugin, ActivityAware {
     Activity activity;
-
-    private static LaunchReviewPlugin register(LaunchReviewPlugin plugin, BinaryMessenger messenger, Activity activity) {
-        final MethodChannel channel = new MethodChannel(messenger, "launch_review");
-        plugin.activity = activity;
-        channel.setMethodCallHandler(plugin);
-        return plugin;
-    }
-
-    /**
-     * Plugin registration.
-     */
-    @SuppressWarnings("deprecation")
-    public static void registerWith(PluginRegistry.Registrar registrar) {
-        register(new LaunchReviewPlugin(), registrar.messenger(), registrar.activity());
-    }
+    private MethodChannel channel;
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
@@ -112,12 +98,14 @@ public class LaunchReviewPlugin implements MethodCallHandler, FlutterPlugin, Act
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
-        register(this, binding.getBinaryMessenger(), null);
+        channel = new MethodChannel(binding.getBinaryMessenger(), "launch_review");
+        activity = binding.getActivity();
+        channel.setMethodCallHandler(new LaunchReviewPlugin());
     }
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-
+        channel.setMethodCallHandler(null);
     }
 
     @Override
