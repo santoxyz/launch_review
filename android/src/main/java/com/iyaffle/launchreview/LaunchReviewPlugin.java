@@ -25,9 +25,10 @@ import java.util.List;
  * LaunchReviewPlugin
  */
 public class LaunchReviewPlugin implements MethodCallHandler, FlutterPlugin, ActivityAware {
-    Activity activity;
+    private Activity activity;
     private MethodChannel channel;
-
+    private Context context;
+    
     @Override
     public void onMethodCall(MethodCall call, Result result) {
         if (call.method.equals("launch")) {
@@ -98,14 +99,16 @@ public class LaunchReviewPlugin implements MethodCallHandler, FlutterPlugin, Act
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
+        context = flutterPluginBinding.getApplicationContext();
         channel = new MethodChannel(binding.getBinaryMessenger(), "launch_review");
-        activity = binding.getActivity();
         channel.setMethodCallHandler(new LaunchReviewPlugin());
     }
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
         channel.setMethodCallHandler(null);
+        channel = null;
+        context = null;
     }
 
     @Override
@@ -115,16 +118,15 @@ public class LaunchReviewPlugin implements MethodCallHandler, FlutterPlugin, Act
 
     @Override
     public void onDetachedFromActivityForConfigChanges() {
-
     }
 
     @Override
     public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
-
+        activity = binding.getActivity();
     }
 
     @Override
     public void onDetachedFromActivity() {
-
+        activity = null;
     }
 }
